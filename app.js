@@ -2,6 +2,14 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+const getDurationInMilliseconds = start => {
+    const NS_PER_SEC = 1e9
+    const NS_TO_MS = 1e6
+    const diff = process.hrtime(start)
+
+    return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS
+}
+
 app.use((req, res, next) => {
     const options = {
         year: 'numeric',
@@ -14,8 +22,18 @@ app.use((req, res, next) => {
     const now = new Date().toLocaleDateString('zh-TW', options)
     const method = req.method
     const url = req.url
+    const start = process.hrtime()
 
-    console.log(`${now} | ${method} from ${url}`)
+    res.on('finish', () => {
+        const durationInMilliseconds = getDurationInMilliseconds(start)
+        console.log(`${now} | ${method} from ${url} | total time: ${durationInMilliseconds.toLocaleString()}ms`)
+    })
+
+    res.on('close', () => {
+        const durationInMilliseconds = getDurationInMilliseconds(start)
+        console.log(`${now} | ${method} from ${url} | total time: ${durationInMilliseconds.toLocaleString()}ms`)
+    })
+
     next()
 })
 
