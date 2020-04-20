@@ -29,11 +29,6 @@ app.use((req, res, next) => {
         console.log(`${now} | ${method} from ${url} | total time: ${durationInMilliseconds.toLocaleString()}ms`)
     })
 
-    res.on('close', () => {
-        const durationInMilliseconds = getDurationInMilliseconds(start)
-        console.log(`${now} | ${method} from ${url} | total time: ${durationInMilliseconds.toLocaleString()}ms`)
-    })
-
     next()
 })
 
